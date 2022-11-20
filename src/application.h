@@ -7,6 +7,8 @@
 #include <QQuickItem>
 #include <QApplicationStateChangeEvent>
 
+#include "applicationsettings.h"
+
 class Application
 {
 public:
@@ -14,8 +16,8 @@ public:
   ~Application();
 
   QQmlApplicationEngine *qmlEngine() const;
-  //  ApplicationSettings *settings() const;
-  //  ProjectManager *projectManager();
+  ApplicationSettings *settings() const;
+//  ProjectManager *projectManager();
 
   int run();
 
@@ -26,7 +28,7 @@ private:
 
   QScopedPointer<QGuiApplication> mApplication;
   QScopedPointer<QQmlApplicationEngine> mEngine;
-  //  QScopedPointer<ApplicationSettings> mSettings;
+  QScopedPointer<ApplicationSettings> mSettings;
   //  ProjectManager mProjectManager;
 };
 

@@ -14,6 +14,12 @@ qt_add_executable(appDiskMark
     src/main.cpp
     src/application.h
     src/application.cpp
+    src/applicationsettings.h
+    src/applicationsettings.cpp
+    src/benchmark.h
+    src/benchmark.cpp
+    src/global.h
+    src/global.cpp
 )
 
 # QML path
@@ -26,8 +32,6 @@ qt_add_qml_module(appDiskMark
         ${QML_DIRS}/main.qml
 
 #        ${QML_DIRS}/ui/AboutDialog.qml
-#        ${QML_DIRS}/ui/MenuBar.qml
-        ${QML_DIRS}/ui/DiskMark.qml
         ${QML_DIRS}/ui/MyButton.qml
         ${QML_DIRS}/ui/MyComboBox.qml
         ${QML_DIRS}/ui/MyProgressBar.qml

@@ -2,14 +2,14 @@
 
 #include <QApplication>
 #include <QFontDatabase>
+#include <QLoggingCategory>
+#include <QUndoStack>
 //#include <QLibraryInfo>
-//#include <QLoggingCategory>
 //#include <QQmlFileSelector>
 //#include <QTranslator>
-#include <QUndoStack>
+
 
 Q_LOGGING_CATEGORY(lcApplication, "app.application")
-
 
 static QGuiApplication *createApplication(int &argc, char **argv, const QString &applicationName) {
   QLoggingCategory::setFilterRules("app.* = false\ntests.* = false\nui.* = false");
@@ -26,11 +26,19 @@ static QGuiApplication *createApplication(int &argc, char **argv, const QString 
 
 Application::Application(int &argc, char **argv, const QString &applicationName) :
   mApplication(createApplication(argc, argv, applicationName)),
+  mSettings(new ApplicationSettings),
   mEngine(new QQmlApplicationEngine) {
+  qCDebug(lcApplication) << "constructing Application...";
   registerQmlTypes();
   addFonts();
-  //installTranslators();
+  installTranslators();
 
+#if defined(Q_OS_WIN) || defined (Q_OS_MACOS)
+  QQmlFileSelector fileSelector(mEngine.data());
+  fileSelector.setExtraSelectors(QStringList() << QLatin1String("nativemenubar"));
+#endif
+
+  mEngine->rootContext()->setContextProperty("settings", mSettings.data());
   mEngine->rootContext()->setContextProperty("qtVersion", QT_VERSION_STR);
 
   qCDebug(lcApplication) << "Loading main.qml...";
@@ -51,11 +59,16 @@ int Application::run() {
   return mApplication->exec();
 }
 
+ApplicationSettings *Application::settings() const {
+  return mSettings.data();
+}
+
 QQmlApplicationEngine *Application::qmlEngine() const {
   return mEngine.data();
 }
 
 void Application::registerQmlTypes() {
+  qRegisterMetaType<ApplicationSettings*>();
   qRegisterMetaType<QUndoStack*>();
 }
 
@@ -70,11 +83,11 @@ void Application::addFonts() {
       qWarning() << "Failde to load font: " << fontPath;
 }
 
-/*
+
 void Application::installTranslators() {
   const QLocale locale(mSettings->language());
-  QDir diskMarkTranslationsDir = QDir::current();
 
+  QDir diskMarkTranslationsDir = QDir::current();
   #if defined(Q_OS_WIN32)
     diskMarkTranslationsDir.cd(QStringLiteral("data/translations"));
   #elif defined(Q_OS_MAC)
@@ -83,7 +96,7 @@ void Application::installTranslators() {
   #else
     diskMarkTranslationsDir.cd(QStringLiteral("data/translations"));
   #endif
-  qCDebug(lcApplication) << "looking for translation for" // << locale.name()
+  qCDebug(lcApplication) << "looking for translation for" << locale.name()
                          << "locale in" << diskMarkTranslationsDir.absolutePath();
 
   QTranslator *diskMarkTranslator = new QTranslator(mApplication.data());
@@ -105,4 +118,3 @@ void Application::installTranslators() {
     qtTranslator = nullptr;
   }
 }
-*/
